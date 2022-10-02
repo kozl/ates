@@ -125,58 +125,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ForbiddenError"
-
-  /v1/tasks/{taskID}/assign:
-    parameters:
-      - in: path
-        name: taskID
-        schema:
-          type: string
-          example: POPUG-1
-        required: true
-    post:
-      tags:
-        - developers
-        - managers
-        - accountants
-      summary: Назначить задачу на исполнителя
-      operationId: assignTask
-      security:
-        - bearerAuth: []
-      requestBody:
-        description: Данные для назначения задачи
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AssignTaskIn"
-      responses:
-        200:
-          description: Задача успешно назначена
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/OkResult"
-        400:
-          description: Некорректный запрос
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/BadRequestError"
-        401:
-          description: Требуется ключ авторизации
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UnauthorizedError"
-        403:
-          description: Ошибка аутентификации
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ForbiddenError"
-
   /v1/tasks/{taskID}/close:
     parameters:
       - in: path
@@ -479,14 +427,6 @@ components:
       required:
         - assignee
         - description
-
-    AssignTaskIn:
-      type: object
-      properties:
-        assignee:
-          type: string
-      required:
-        - assignee
 
     ListTask:
       type: object

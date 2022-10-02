@@ -4,6 +4,8 @@
 
 ![image](./architecture.jpg)
 
+[Miro](https://miro.com/app/board/uXjVPSIgm60=/)
+
 ## API Gateway
 
 API Gateway является точкой входа внешних клиентов в сервисы. Выполняет несколько функций:
