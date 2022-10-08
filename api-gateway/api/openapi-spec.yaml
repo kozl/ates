@@ -364,6 +364,12 @@ paths:
                 $ref: "#/components/schemas/ForbiddenError"
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
     ListTasksResult:
       type: object
@@ -567,6 +573,8 @@ components:
               type: string
           required:
             - reason
+      required:
+        - error
 
     ForbiddenError:
       type: object
