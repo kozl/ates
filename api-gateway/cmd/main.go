@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
 
 	impl "github.com/kozl/ates/api-gateway/internal/api"
@@ -39,6 +40,7 @@ func main() {
 	}
 
 	r.Use(
+		middleware.Recoverer,
 		validator.OapiRequestValidator(swagger),
 		auth.NewJWTContextMiddleware(),
 	)
