@@ -8,6 +8,18 @@ import (
 
 type V1 struct{}
 
+// Залогиниться в системе
+// (POST /auth/sign-in)
+func (a *V1) SignIn(w http.ResponseWriter, r *http.Request) {
+	panic("not implemented") // TODO: Implement
+}
+
+// Зарегистрироваться в системе
+// (POST /auth/sign-up)
+func (a *V1) SignUp(w http.ResponseWriter, r *http.Request) {
+	panic("not implemented") // TODO: Implement
+}
+
 // Получить данные о счетах всех сотрудников
 // (GET /v1/accounts)
 func (a *V1) GetAllAccounts(w http.ResponseWriter, r *http.Request) {

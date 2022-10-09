@@ -13,6 +13,15 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// Defines values for AuthSignUpRole.
+const (
+	AuthSignUpRoleAccountant AuthSignUpRole = "accountant"
+
+	AuthSignUpRoleDeveloper AuthSignUpRole = "developer"
+
+	AuthSignUpRoleManager AuthSignUpRole = "manager"
+)
+
 // AccountsSummary defines model for AccountsSummary.
 type AccountsSummary struct {
 	BalanceByDay   *[]BalanceEntry `json:"balanceByDay,omitempty"`
@@ -26,6 +35,22 @@ type AuditLogEntry struct {
 	DateTime      time.Time `json:"dateTime"`
 	TaskID        string    `json:"taskID"`
 }
+
+// AuthSignIn defines model for AuthSignIn.
+type AuthSignIn struct {
+	Login    string `json:"login"`
+	Password string `json:"password"`
+}
+
+// AuthSignUp defines model for AuthSignUp.
+type AuthSignUp struct {
+	Login    string          `json:"login"`
+	Password string          `json:"password"`
+	Role     *AuthSignUpRole `json:"role,omitempty"`
+}
+
+// AuthSignUpRole defines model for AuthSignUp.Role.
+type AuthSignUpRole string
 
 // BadRequestError defines model for BadRequestError.
 type BadRequestError struct {
@@ -96,6 +121,13 @@ type MyAccount struct {
 	Balance  *int             `json:"balance,omitempty"`
 }
 
+// NotFoundError defines model for NotFoundError.
+type NotFoundError struct {
+	Error struct {
+		Reason string `json:"reason"`
+	} `json:"error"`
+}
+
 // OkResult defines model for OkResult.
 type OkResult struct {
 	Result struct {
@@ -131,6 +163,12 @@ type UserAccount struct {
 	UserID  *string `json:"userID,omitempty"`
 }
 
+// SignInJSONBody defines parameters for SignIn.
+type SignInJSONBody AuthSignIn
+
+// SignUpJSONBody defines parameters for SignUp.
+type SignUpJSONBody AuthSignUp
+
 // GetAccountsSummaryParams defines parameters for GetAccountsSummary.
 type GetAccountsSummaryParams struct {
 	// Дата начала периода
@@ -151,6 +189,12 @@ type GetTaskStatsParams struct {
 	// Дата конца периода
 	To *openapi_types.Date `json:"to,omitempty"`
 }
+
+// SignInJSONRequestBody defines body for SignIn for application/json ContentType.
+type SignInJSONRequestBody SignInJSONBody
+
+// SignUpJSONRequestBody defines body for SignUp for application/json ContentType.
+type SignUpJSONRequestBody SignUpJSONBody
 
 // CreateTaskJSONRequestBody defines body for CreateTask for application/json ContentType.
 type CreateTaskJSONRequestBody CreateTaskJSONBody
