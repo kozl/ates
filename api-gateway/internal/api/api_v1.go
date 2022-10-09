@@ -1,23 +1,70 @@
 package api
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 
+	"github.com/kozl/ates/api-gateway/internal/api/auth"
+	"github.com/kozl/ates/api-gateway/internal/auth/repo"
+	"github.com/kozl/ates/api-gateway/internal/auth/usecase"
 	"github.com/kozl/ates/api-gateway/internal/generated/api"
+	"github.com/sirupsen/logrus"
 )
 
-type V1 struct{}
+type V1 struct {
+	log *logrus.Logger
+
+	authorizer usecase.Authorizer
+}
+
+func NewV1(log *logrus.Logger, authorizer usecase.Authorizer) *V1 {
+	return &V1{
+		log:        log,
+		authorizer: authorizer,
+	}
+}
 
 // Залогиниться в системе
 // (POST /auth/sign-in)
 func (a *V1) SignIn(w http.ResponseWriter, r *http.Request) {
-	panic("not implemented") // TODO: Implement
+	var req api.AuthSignIn
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		a.log.WithFields(logrus.Fields{"error": err}).Error("failed to decode request body")
+		sendAPIError(w, http.StatusBadRequest, "invalid input format")
+		return
+	}
+	token, err := a.authorizer.SignIn(req.Login, req.Password)
+	if err != nil {
+		a.log.WithFields(logrus.Fields{"error": err}).Errorf("failed to sign-in")
+		sendAPIError(w, http.StatusBadRequest, fmt.Sprintf("failed to sign-in: %s", err))
+		return
+	}
+
+	sendJSON(w, api.AuthSignInResult{Token: token})
 }
 
 // Зарегистрироваться в системе
 // (POST /auth/sign-up)
 func (a *V1) SignUp(w http.ResponseWriter, r *http.Request) {
-	panic("not implemented") // TODO: Implement
+	var req api.AuthSignUp
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		a.log.WithFields(logrus.Fields{"error": err}).Error("failed to decode request body")
+		sendAPIError(w, http.StatusBadRequest, "invalid input format")
+		return
+	}
+	role := repo.DeveloperRole
+	if req.Role != nil {
+		role = string(*req.Role)
+	}
+	token, err := a.authorizer.SignUp(req.Login, req.Password, role)
+	if err != nil {
+		a.log.WithFields(logrus.Fields{"error": err}).Errorf("failed to sign-up")
+		sendAPIError(w, http.StatusBadRequest, fmt.Sprintf("failed to sign-up: %s", err))
+		return
+	}
+
+	sendJSON(w, api.AuthSignUpResult{Token: token})
 }
 
 // Получить данные о счетах всех сотрудников
@@ -53,7 +100,21 @@ func (a *V1) CreateTask(w http.ResponseWriter, r *http.Request) {
 // Распределить задачи по исполнителям
 // (POST /v1/tasks/assign)
 func (a *V1) AssignTasks(w http.ResponseWriter, r *http.Request) {
-	panic("not implemented") // TODO: Implement
+	token := auth.GetJWTTokenFromContext(r.Context())
+	claims, err := a.authorizer.ValidateToken(token)
+	if err != nil {
+		a.log.WithFields(logrus.Fields{"error": err}).Error("failed to validate token")
+		sendAPIError(w, http.StatusForbidden, "failed to validate token")
+		return
+	}
+
+	if claims.Role != repo.ManagerRole {
+		a.log.WithFields(logrus.Fields{"error": err}).Error("only managers can assign tasks")
+		sendAPIError(w, http.StatusForbidden, "only managers can assign tasks")
+		return
+	}
+
+	w.Write([]byte("Bang!")) // nolint: errcheck
 }
 
 // Получить статистику по стоимости задач

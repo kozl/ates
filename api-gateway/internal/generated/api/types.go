@@ -42,6 +42,11 @@ type AuthSignIn struct {
 	Password string `json:"password"`
 }
 
+// AuthSignInResult defines model for AuthSignInResult.
+type AuthSignInResult struct {
+	Token string `json:"token"`
+}
+
 // AuthSignUp defines model for AuthSignUp.
 type AuthSignUp struct {
 	Login    string          `json:"login"`
@@ -51,6 +56,11 @@ type AuthSignUp struct {
 
 // AuthSignUpRole defines model for AuthSignUp.Role.
 type AuthSignUpRole string
+
+// AuthSignUpResult defines model for AuthSignUpResult.
+type AuthSignUpResult struct {
+	Token string `json:"token"`
+}
 
 // BadRequestError defines model for BadRequestError.
 type BadRequestError struct {

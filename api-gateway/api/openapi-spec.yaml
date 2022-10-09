@@ -30,7 +30,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OkResult"
+                $ref: "#/components/schemas/AuthSignInResult"
         400:
           description: Некорректный запрос
           content:
@@ -60,7 +60,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OkResult"
+                $ref: "#/components/schemas/AuthSignUpResult"
         400:
           description: Некорректный запрос
           content:
@@ -446,6 +446,22 @@ components:
       required:
         - login
         - password
+
+    AuthSignUpResult:
+      type: object
+      properties:
+        token:
+          type: string
+      required:
+        - token
+
+    AuthSignInResult:
+      type: object
+      properties:
+        token:
+          type: string
+      required:
+        - token
 
     ListTasksResult:
       type: object

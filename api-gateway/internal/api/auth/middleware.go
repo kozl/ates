@@ -24,3 +24,11 @@ func NewJWTContextMiddleware() func(next http.Handler) http.Handler {
 		})
 	}
 }
+
+func GetJWTTokenFromContext(ctx context.Context) string {
+	token, ok := ctx.Value(JWTTokenContextKey).(string)
+	if !ok {
+		return ""
+	}
+	return token
+}
