@@ -64,7 +64,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OkResult"
+                $ref: "#/components/schemas/CreateTaskResult"
         400:
           description: Некорректный запрос
           content:
@@ -146,7 +146,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OkResult"
+                $ref: "#/components/schemas/CloseTaskResult"
         400:
           description: Некорректный запрос
           content:
@@ -420,13 +420,26 @@ components:
     CreateTaskIn:
       type: object
       properties:
-        assignee:
-          type: string
         description:
           type: string
       required:
-        - assignee
         - description
+
+    CreateTaskResult:
+      type: object
+      properties:
+        result:
+          $ref: "#/components/schemas/Task"
+      required:
+        - result
+
+    CloseTaskResult:
+      type: object
+      properties:
+        result:
+          $ref: "#/components/schemas/Task"
+      required:
+        - result
 
     ListTask:
       type: object
