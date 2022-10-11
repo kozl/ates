@@ -44,7 +44,8 @@ class ORMUserRepo(UserRepo):
 
 @lru_cache()
 def get_user_repo():
-    initial_users = [User(login="avlkozlov", role=UserRole.DEVELOPER), User(login="iivanov", role=UserRole.DEVELOPER)]
+    # initial_users = [User(login="avlkozlov", role=UserRole.DEVELOPER), User(login="iivanov", role=UserRole.DEVELOPER)]
+    initial_users = []
     for user in initial_users:
         asyncio.run(UserORM.create(login=user.login, role=user.role))
     return ORMUserRepo()

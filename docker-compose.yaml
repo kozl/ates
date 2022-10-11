@@ -12,12 +12,27 @@ services:
     depends_on:
       - broker
 
-  task-tracker:
+  task-tracker-app:
     image: task-tracker:latest
     ports:
       - "8000:8000"
     depends_on:
       - broker
+    command: "python app.py"
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+
+  task-tracker-worker:
+    image: task-tracker:latest
+    depends_on:
+      - broker
+    command: "python worker.py worker"
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.2.1
