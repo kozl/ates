@@ -1,0 +1,3 @@
+task-tracker/venv
+__pycache__
+data/*

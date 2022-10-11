@@ -14,6 +14,60 @@ tags:
   - name: employee
     description: Operations available to regular employees
 paths:
+  /auth/sign-in:
+    post:
+      summary: Залогиниться в системе
+      operationId: signIn
+      requestBody:
+        description: Данные для входа
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthSignIn"
+      responses:
+        200:
+          description: Пользователь успешно залогинился
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSignInResult"
+        400:
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        404:
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
+
+  /auth/sign-up:
+    post:
+      summary: Зарегистрироваться в системе
+      operationId: signUp
+      requestBody:
+        description: Данные регистрации
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthSignUp"
+      responses:
+        200:
+          description: Пользователь успешно зарегистировался
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSignUpResult"
+        400:
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+
   /v1/tasks:
     get:
       tags:
@@ -64,9 +118,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/OkResult"
+                $ref: "#/components/schemas/CreateTaskResult"
         400:
           description: Некорректный запрос
           content:
@@ -148,9 +200,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/OkResult"
+                $ref: "#/components/schemas/CloseTaskResult"
         400:
           description: Некорректный запрос
           content:
@@ -184,9 +234,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/OkResult"
+                $ref: "#/components/schemas/OkResult"
         400:
           description: Некорректный запрос
           content:
@@ -364,7 +412,57 @@ paths:
                 $ref: "#/components/schemas/ForbiddenError"
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
+    AuthSignIn:
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+      required:
+        - login
+        - password
+
+    AuthSignUp:
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum:
+            - developer
+            - manager
+            - accountant
+      required:
+        - login
+        - password
+
+    AuthSignUpResult:
+      type: object
+      properties:
+        token:
+          type: string
+      required:
+        - token
+
+    AuthSignInResult:
+      type: object
+      properties:
+        token:
+          type: string
+      required:
+        - token
+
     ListTasksResult:
       type: object
       properties:
@@ -420,13 +518,26 @@ components:
     CreateTaskIn:
       type: object
       properties:
-        assignee:
-          type: string
         description:
           type: string
       required:
-        - assignee
         - description
+
+    CreateTaskResult:
+      type: object
+      properties:
+        result:
+          $ref: "#/components/schemas/Task"
+      required:
+        - result
+
+    CloseTaskResult:
+      type: object
+      properties:
+        result:
+          $ref: "#/components/schemas/Task"
+      required:
+        - result
 
     ListTask:
       type: object
@@ -567,8 +678,23 @@ components:
               type: string
           required:
             - reason
+      required:
+        - error
 
     ForbiddenError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            reason:
+              type: string
+          required:
+            - reason
+      required:
+        - error
+
+    NotFoundError:
       type: object
       properties:
         error:
