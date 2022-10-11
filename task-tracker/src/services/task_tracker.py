@@ -9,7 +9,7 @@ from repos.users.abstract import UserRepo
 from repos.tasks.models import Task, TaskStatus
 from repos.users.models import UserRole
 from repos.tasks.orm import get_task_repo
-from repos.users.memory import get_user_repo
+from repos.users.orm import get_user_repo
 from repos.tasks.exceptions import TaskNotFoundException as RepoTaskNotFoundException
 from repos.users.exceptions import UserNotFoundException as RepoUserNotFoundException
 
@@ -43,7 +43,7 @@ class TaskTrackerService:
         return await self.tasks.list_tasks(lambda task: task.assignee == assignee and task.status == TaskStatus.IN_PROGRESS)
 
     async def create_task(self, description: str) -> Task:
-        users = self.users.list_users_by_role(UserRole.DEVELOPER)
+        users = await self.users.list_users_by_role(UserRole.DEVELOPER)
         if len(users) == 0:
             raise NoUsersFoundException("No developers found")
         assignee = random.choice(users).login
@@ -62,7 +62,7 @@ class TaskTrackerService:
 
     async def assign_all_tasks(self):
         tasks = await self.tasks.list_tasks(lambda task: task.status == TaskStatus.IN_PROGRESS)
-        developers = self.users.list_users_by_role(UserRole.DEVELOPER)
+        developers = await self.users.list_users_by_role(UserRole.DEVELOPER)
         for task in tasks:
             task.assignee = random.choice(developers).login
             await self.tasks.update_task(task.id, task)

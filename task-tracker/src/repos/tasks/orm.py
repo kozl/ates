@@ -15,11 +15,11 @@ class TaskORM(models.Model):
     assignee = fields.CharField(max_length=50)
 
 class ORMTaskRepo(TaskRepo):
-        async def get_task(self, task_id: str) -> Task:
+        async def get_task(self, id: str) -> Task:
             try:
-                task_orm = await TaskORM.get(id=task_id)
+                task_orm = await TaskORM.get(id=self.task_id(id))
             except DoesNotExist:
-                raise TaskNotFoundException(f"Task {task_id} not found")
+                raise TaskNotFoundException(f"Task {self.task_id(id)} not found")
             return Task(
                 id=f"POPUG-{task_orm.id}",
                 description=task_orm.description,
@@ -53,11 +53,11 @@ class ORMTaskRepo(TaskRepo):
                 )
             return task
     
-        async def update_task(self, task_id: str, upd: TaskORM) -> TaskORM:
+        async def update_task(self, id: str, upd: TaskORM) -> TaskORM:
             try:
-                task_orm = await TaskORM.get(id=task_id)
+                task_orm = await TaskORM.get(id=self.task_id(id))
             except DoesNotExist:
-                raise TaskNotFoundException(f"Task {task_id} not found")
+                raise TaskNotFoundException(f"Task {self.task_id(id)} not found")
             
             task_orm.assignee = upd.assignee
             task_orm.description = upd.description
@@ -68,8 +68,12 @@ class ORMTaskRepo(TaskRepo):
                 id=f"POPUG-{task_orm.id}",
                 assignee=task_orm.assignee, 
                 description=task_orm.description,
-                status=TaskStatus.IN_PROGRESS,
+                status=task_orm.status,
                 )
+
+        @classmethod
+        def task_id(cls, task_id: str) -> int:
+            return int(task_id.split("-")[1])
 
 async def get_task_repo():
     return ORMTaskRepo()
