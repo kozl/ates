@@ -35,7 +35,7 @@ async def exception_handler(request: Request, exc: HTTPException):
 
 register_tortoise(
     app,
-    db_url="sqlite://:memory:",
+    db_url="sqlite://db.sqlite3",
     modules={"models": ["repos.tasks.orm", "repos.users.orm"]},
     generate_schemas=True,
     add_exception_handlers=True,
@@ -43,7 +43,7 @@ register_tortoise(
 
 if __name__ == '__main__':
     uvicorn.run(
-        'main:app',
+        'app:app',
         host='0.0.0.0',
         port=8000,
         log_config=LOGGING,
