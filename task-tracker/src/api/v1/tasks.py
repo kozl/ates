@@ -19,7 +19,7 @@ async def list_tasks(
     service: TaskTrackerService = Depends(get_service),
     ) -> Result:
     try:
-        tasks = service.list_tasks(x_user)
+        tasks = await service.list_tasks(x_user)
     except UserNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -33,7 +33,7 @@ async def create_task(
     service: TaskTrackerService = Depends(get_service)
     ) -> Result:
     try:
-        task = service.create_task(request.description)
+        task = await service.create_task(request.description)
     except NoUsersFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     return Result(result=Task(id=task.id, description=task.description, status=task.status.value, assignee=task.assignee))
@@ -41,7 +41,7 @@ async def create_task(
 @router.get("/{task_id}", response_model=Result)
 async def get_task(task_id: str, service: TaskTrackerService = Depends(get_service)):
     try:
-        task = service.get_task(task_id)
+        task = await service.get_task(task_id)
     except TaskNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     return Result(result=Task(id=task.id, description=task.description, status=task.status.value, assignee=task.assignee))
@@ -49,7 +49,7 @@ async def get_task(task_id: str, service: TaskTrackerService = Depends(get_servi
 @router.post("/{task_id}/close", response_model=Result)
 async def close_task(task_id: str, x_user: str = Header(default=None), service: TaskTrackerService = Depends(get_service)):
     try:
-        task = service.close_task(task_id, x_user)
+        task = await service.close_task(task_id, x_user)
     except TaskNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except UserIsNotAssigneeException as e:
@@ -59,5 +59,5 @@ async def close_task(task_id: str, x_user: str = Header(default=None), service: 
 
 @router.post("/assign", response_model=Result)
 async def assign_all_tasks(x_user: str = Header(default=None), service: TaskTrackerService = Depends(get_service)):
-    service.assign_all_tasks()
+    await service.assign_all_tasks()
     return Result(result=Ok(ok=True))

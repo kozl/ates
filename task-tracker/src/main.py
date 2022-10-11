@@ -1,7 +1,8 @@
 import logging
+import uvicorn as uvicorn
 from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.responses import JSONResponse
-import uvicorn as uvicorn
+from tortoise.contrib.fastapi import register_tortoise
 
 from api.v1 import tasks
 from core.config import SERVICE_NAME, USER_HEADER, ROLE_HEADER
@@ -31,6 +32,14 @@ async def exception_handler(request: Request, exc: HTTPException):
         status_code=exc.status_code,
         content={"error": {"reason": exc.detail}},
     )
+
+register_tortoise(
+    app,
+    db_url="sqlite://:memory:",
+    modules={"models": ["repos.tasks.orm"]},
+    generate_schemas=True,
+    add_exception_handlers=True,
+)
 
 if __name__ == '__main__':
     uvicorn.run(

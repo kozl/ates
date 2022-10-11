@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from repos.tasks.abstract import TaskRepo, TaskFilter
 from repos.tasks.exceptions import TaskNotFoundException
-from repos.tasks.models import Task, TaskStatus
+from repos.tasks.models import ORMTask, TaskStatus
 
 class InMemoryTaskRepo(TaskRepo):
     
@@ -12,19 +12,19 @@ class InMemoryTaskRepo(TaskRepo):
             self.tasks_dict = {}
             self.latest_task_id = 1
     
-        def get_task(self, task_id: str) -> Task:
+        def get_task(self, task_id: str) -> ORMTask:
             try:
                 idx = self.tasks_dict[task_id]
                 return self.tasks[idx]
             except KeyError:
                 raise TaskNotFoundException(f"Task {task_id} not found")
     
-        def list_tasks(self, task_filter: Optional[TaskFilter] = None) -> List[Task]:
+        def list_tasks(self, task_filter: Optional[TaskFilter] = None) -> List[ORMTask]:
             return list(filter(task_filter, self.tasks))
 
-        def create_task(self, assignee: str, description: str) -> Task:
+        def create_task(self, assignee: str, description: str) -> ORMTask:
             task_id = f"POPUG-{self.latest_task_id}"
-            task = Task(
+            task = ORMTask(
                 id=task_id,
                 assignee=assignee, 
                 description=description,
@@ -37,7 +37,7 @@ class InMemoryTaskRepo(TaskRepo):
 
             return task
     
-        def update_task(self, task_id: str, upd: Task) -> Task:
+        def update_task(self, task_id: str, upd: ORMTask) -> ORMTask:
             try:
                 idx = self.tasks_dict[task_id]
                 task = self.tasks[idx]
