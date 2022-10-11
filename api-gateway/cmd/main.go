@@ -12,6 +12,7 @@ import (
 	impl "github.com/kozl/ates/api-gateway/internal/api"
 	"github.com/kozl/ates/api-gateway/internal/api/auth"
 	"github.com/kozl/ates/api-gateway/internal/api/validator"
+	"github.com/kozl/ates/api-gateway/internal/auth/events"
 	"github.com/kozl/ates/api-gateway/internal/auth/repo"
 	"github.com/kozl/ates/api-gateway/internal/auth/usecase"
 	"github.com/kozl/ates/api-gateway/internal/generated/api"
@@ -48,7 +49,8 @@ func main() {
 	)
 
 	userRepo := repo.NewInMemoryRepository()
-	authorizer := usecase.NewAuthorizer(userRepo, []byte(mustGetEnv("JWT_SECRET")))
+	authEventProducer := events.MustNewKafkaEventProducer(mustGetEnv("KAFKA_BOOTSTRAP_SERVERS"))
+	authorizer := usecase.NewAuthorizer(userRepo, authEventProducer, []byte(mustGetEnv("JWT_SECRET")))
 	apiV1 := impl.NewV1(
 		log,
 		authorizer,

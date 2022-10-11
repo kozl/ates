@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from tortoise.contrib.fastapi import register_tortoise
 
 from api.v1 import tasks
-from core.config import SERVICE_NAME, USER_HEADER, ROLE_HEADER
+from core.config import SERVICE_NAME, DB_URL, USER_HEADER, ROLE_HEADER
 from core.logger import LOGGING
 
 app = FastAPI(
@@ -35,7 +35,7 @@ async def exception_handler(request: Request, exc: HTTPException):
 
 register_tortoise(
     app,
-    db_url="sqlite://db.sqlite3",
+    db_url=DB_URL,
     modules={"models": ["repos.tasks.orm", "repos.users.orm"]},
     generate_schemas=True,
     add_exception_handlers=True,

@@ -5,16 +5,21 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/kozl/ates/api-gateway/internal/auth/events"
 	"github.com/kozl/ates/api-gateway/internal/auth/repo"
 )
 
 type AuthorizerImpl struct {
-	userRepo      repo.Repository
-	jwtSigningKey []byte
+	userRepo          repo.Repository
+	authEventProducer events.EventProducer
+	jwtSigningKey     []byte
 }
 
-func NewAuthorizer(userRepo repo.Repository, jwtSingingKey []byte) Authorizer {
-	return &AuthorizerImpl{userRepo: userRepo, jwtSigningKey: jwtSingingKey}
+func NewAuthorizer(userRepo repo.Repository, authEventProducer events.EventProducer, jwtSingingKey []byte) Authorizer {
+	return &AuthorizerImpl{
+		userRepo:          userRepo,
+		authEventProducer: authEventProducer,
+		jwtSigningKey:     jwtSingingKey}
 }
 
 func (a *AuthorizerImpl) SignIn(username, password string) (string, error) {
@@ -40,6 +45,11 @@ func (a *AuthorizerImpl) SignUp(username, password, role string) (string, error)
 	err := a.userRepo.AddUser(user)
 	if err != nil {
 		return "", fmt.Errorf("can't add user: %w", err)
+	}
+
+	err = a.authEventProducer.ProduceUserCreated(user.Username, user.Role)
+	if err != nil {
+		return "", fmt.Errorf("can't produce user created event: %w", err)
 	}
 
 	return jwtTokenForUser(user, a.jwtSigningKey)
