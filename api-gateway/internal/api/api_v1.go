@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/http/httputil"
 
 	"github.com/kozl/ates/api-gateway/internal/api/auth"
 	"github.com/kozl/ates/api-gateway/internal/auth/repo"
@@ -15,13 +16,15 @@ import (
 type V1 struct {
 	log *logrus.Logger
 
-	authorizer usecase.Authorizer
+	taskTrackerProxy *httputil.ReverseProxy
+	authorizer       usecase.Authorizer
 }
 
-func NewV1(log *logrus.Logger, authorizer usecase.Authorizer) *V1 {
+func NewV1(log *logrus.Logger, authorizer usecase.Authorizer, taskTrackerProxy *httputil.ReverseProxy) *V1 {
 	return &V1{
-		log:        log,
-		authorizer: authorizer,
+		log:              log,
+		taskTrackerProxy: taskTrackerProxy,
+		authorizer:       authorizer,
 	}
 }
 
@@ -88,7 +91,18 @@ func (a *V1) GetAccountsSummary(w http.ResponseWriter, r *http.Request, params a
 // Получить список задач
 // (GET /v1/tasks)
 func (a *V1) ListTasks(w http.ResponseWriter, r *http.Request) {
-	panic("not implemented") // TODO: Implement
+	token := auth.GetJWTTokenFromContext(r.Context())
+	claims, err := a.authorizer.ValidateToken(token)
+	if err != nil {
+		a.log.WithFields(logrus.Fields{"error": err}).Error("failed to validate token")
+		sendAPIError(w, http.StatusForbidden, "failed to validate token")
+		return
+	}
+
+	r.Header.Set("X-User", claims.Username)
+	r.Header.Set("X-Role", claims.Role)
+
+	a.taskTrackerProxy.ServeHTTP(w, r)
 }
 
 // Создать задачу

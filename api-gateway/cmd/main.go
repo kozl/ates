@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 
 	"github.com/go-chi/chi/v5"
@@ -51,9 +53,16 @@ func main() {
 	userRepo := repo.NewInMemoryRepository()
 	authEventProducer := events.MustNewKafkaEventProducer(mustGetEnv("KAFKA_BOOTSTRAP_SERVERS"))
 	authorizer := usecase.NewAuthorizer(userRepo, authEventProducer, []byte(mustGetEnv("JWT_SECRET")))
+
+	taskTrackerProxy, err := newProxy("http://task-tracker-app:8000")
+	if err != nil {
+		return
+	}
+
 	apiV1 := impl.NewV1(
 		log,
 		authorizer,
+		taskTrackerProxy,
 	)
 
 	api.HandlerFromMux(apiV1, r)
@@ -68,4 +77,13 @@ func mustGetEnv(key string) string {
 		panic(fmt.Sprintf("environment variable %s is not set", key))
 	}
 	return v
+}
+
+func newProxy(targetUrl string) (*httputil.ReverseProxy, error) {
+	url, err := url.Parse(targetUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	return httputil.NewSingleHostReverseProxy(url), nil
 }

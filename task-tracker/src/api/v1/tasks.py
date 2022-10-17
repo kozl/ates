@@ -13,7 +13,7 @@ from services.task_tracker import (
 
 router = APIRouter()
 
-@router.get("/", response_model=Result)
+@router.get("", response_model=Result)
 async def list_tasks(
     x_user: str = Header(), 
     service: TaskTrackerService = Depends(get_service),
@@ -27,7 +27,7 @@ async def list_tasks(
 
     return Result(result=tasks)
 
-@router.post("/", response_model=Result)
+@router.post("", response_model=Result)
 async def create_task(
     request: CreateTaskRequest,
     service: TaskTrackerService = Depends(get_service)

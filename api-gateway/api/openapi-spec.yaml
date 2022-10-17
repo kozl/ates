@@ -546,11 +546,14 @@ components:
           type: string
         assignee:
           type: string
+        description:
+          type: string
         status:
           type: string
       required:
         - id
         - assignee
+        - description
         - status
 
     Task:
