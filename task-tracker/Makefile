@@ -11,4 +11,4 @@ build:
 
 .PHONY: run
 run:
-	PYTHONPATH="./src" uvicorn src.app:app --reload
+	PYTHONPATH="./src" uvicorn app:app --reload
