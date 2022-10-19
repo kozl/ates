@@ -108,7 +108,18 @@ func (a *V1) ListTasks(w http.ResponseWriter, r *http.Request) {
 // Создать задачу
 // (POST /v1/tasks)
 func (a *V1) CreateTask(w http.ResponseWriter, r *http.Request) {
-	panic("not implemented") // TODO: Implement
+	token := auth.GetJWTTokenFromContext(r.Context())
+	claims, err := a.authorizer.ValidateToken(token)
+	if err != nil {
+		a.log.WithFields(logrus.Fields{"error": err}).Error("failed to validate token")
+		sendAPIError(w, http.StatusForbidden, "failed to validate token")
+		return
+	}
+
+	r.Header.Set("X-User", claims.Username)
+	r.Header.Set("X-Role", claims.Role)
+
+	a.taskTrackerProxy.ServeHTTP(w, r)
 }
 
 // Распределить задачи по исполнителям
@@ -128,7 +139,10 @@ func (a *V1) AssignTasks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Bang!")) // nolint: errcheck
+	r.Header.Set("X-User", claims.Username)
+	r.Header.Set("X-Role", claims.Role)
+
+	a.taskTrackerProxy.ServeHTTP(w, r)
 }
 
 // Получить статистику по стоимости задач
@@ -140,11 +154,33 @@ func (a *V1) GetTaskStats(w http.ResponseWriter, r *http.Request, params api.Get
 // Получить информацию о задаче
 // (GET /v1/tasks/{taskID})
 func (a *V1) GetTask(w http.ResponseWriter, r *http.Request, taskID string) {
-	panic("not implemented") // TODO: Implement
+	token := auth.GetJWTTokenFromContext(r.Context())
+	claims, err := a.authorizer.ValidateToken(token)
+	if err != nil {
+		a.log.WithFields(logrus.Fields{"error": err}).Error("failed to validate token")
+		sendAPIError(w, http.StatusForbidden, "failed to validate token")
+		return
+	}
+
+	r.Header.Set("X-User", claims.Username)
+	r.Header.Set("X-Role", claims.Role)
+
+	a.taskTrackerProxy.ServeHTTP(w, r)
 }
 
 // Закрыть задачу
 // (POST /v1/tasks/{taskID}/close)
 func (a *V1) CloseTask(w http.ResponseWriter, r *http.Request, taskID string) {
-	panic("not implemented") // TODO: Implement
+	token := auth.GetJWTTokenFromContext(r.Context())
+	claims, err := a.authorizer.ValidateToken(token)
+	if err != nil {
+		a.log.WithFields(logrus.Fields{"error": err}).Error("failed to validate token")
+		sendAPIError(w, http.StatusForbidden, "failed to validate token")
+		return
+	}
+
+	r.Header.Set("X-User", claims.Username)
+	r.Header.Set("X-Role", claims.Role)
+
+	a.taskTrackerProxy.ServeHTTP(w, r)
 }

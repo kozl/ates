@@ -569,12 +569,15 @@ components:
           format: date-time
         assignee:
           type: string
+        status:
+          type: string
         description:
           type: string
       required:
         - id
         - createdAt
         - updatedAt
+        - status
         - assignee
         - description
 
