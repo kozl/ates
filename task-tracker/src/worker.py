@@ -18,7 +18,7 @@ class UserCreated(faust.Record, serializer='json'):
     login: str
     role: str
 
-user_created_topic = app.topic('auth.events', value_type=UserCreated)
+user_created_topic = app.topic('auth.UserCreated', value_type=UserCreated)
 
 @app.task
 async def init_orm():

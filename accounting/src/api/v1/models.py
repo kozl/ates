@@ -12,17 +12,18 @@ class Account(BaseModel):
     balance: int = Field(..., example="Баланс пользователя")
 
 class Transaction(BaseModel):
-    task_id: str = Field(..., example="Идентификатор задачи")
-    action: str = Field(..., example="Тип операции")
+    type: str = Field(..., example="Тип операции")
     timestamp: datetime = Field(..., example="Время операции")
+    description: str = Field(..., example="Описание транзакции")
     amount: int = Field(..., example="Сумма операции")
 
 class MyAccount(BaseModel):
     user_id: str = Field(..., example="Идентификатор пользователя")
-    transactions: List[Transaction] = Field(..., example="Баланс пользователя")
+    balance: int = Field(..., example="Баланс пользователя")
+    transactions: List[Transaction] = Field(..., example="Транзакции пользователя")
 
 class Ok(BaseModel):
     ok: bool = Field(..., description="Успешно")
 
 class Result(BaseModel):
-    result: Union[Account, List[Account], Ok]
+    result: Union[MyAccount, List[Account], Ok]

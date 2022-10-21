@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	topic    = "auth.events"
+	topic    = "auth.UserCreated"
 	numparts = 1
 )
 
