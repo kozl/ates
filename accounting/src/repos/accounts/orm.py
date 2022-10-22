@@ -39,9 +39,9 @@ class BillingPeriodORM(models.Model):
 
 
 class ORMAccountRepo(AccountsRepo):
-    def get_user_account(self, username: str) -> Account:
+    async def get_user_account(self, username: str) -> Account:
         try:
-            account = AccountORM.get(username=username)
+            account = await AccountORM.get(username=username)
             return Account(
                 id=account.id,
                 username=account.username,
@@ -52,8 +52,8 @@ class ORMAccountRepo(AccountsRepo):
         except DoesNotExist:
             raise AccountNotFoundException(f"Account {username} not found")
 
-    def list_accounts(self) -> List[Account]:
-        accounts = AccountORM.all()
+    async def list_accounts(self) -> List[Account]:
+        accounts = await AccountORM.all()
         return [
             Account(
                 id=account.id,
@@ -65,12 +65,12 @@ class ORMAccountRepo(AccountsRepo):
             for account in accounts
         ]
 
-    def add_user_account(self, username: str) -> Account:
+    async def add_user_account(self, username: str) -> Account:
         account = AccountORM(
             username=username,
             balance=0,
         )
-        account.save()
+        await account.save()
         return Account(
             id=account.id,
             username=account.username,
@@ -79,15 +79,15 @@ class ORMAccountRepo(AccountsRepo):
             updated_at=account.updated_at,
         )
 
-    def apply_withdraw_transaction(self, account_id: str, transaction_type: TransactionTypes, amount: int, description: str = "") -> Transaction:
-        return self._apply_transaction(account_id=account_id, transaction_type=transaction_type, debit=amount, credit=0, description=description)
+    async def apply_withdraw_transaction(self, account_id: str, transaction_type: TransactionTypes, amount: int, description: str = "") -> Transaction:
+        return await self._apply_transaction(account_id=account_id, transaction_type=transaction_type, debit=amount, credit=0, description=description)
 
-    def apply_deposit_transaction(self, account_id: str, transaction_type: TransactionTypes, amount: int, description: str = "") -> Transaction:
-        return self._apply_transaction(account_id=account_id, transaction_type=transaction_type, debit=0, credit=amount, description=description)
+    async def apply_deposit_transaction(self, account_id: str, transaction_type: TransactionTypes, amount: int, description: str = "") -> Transaction:
+        return await self._apply_transaction(account_id=account_id, transaction_type=transaction_type, debit=0, credit=amount, description=description)
 
     @atomic()
-    def _apply_transaction(self, account_id: str, transaction_type: TransactionTypes, debit: int, credit: int, description: str = ""):
-        active_billing_period = BillingPeriodORM.filter(account_id=account_id, end_date=None).first()
+    async def _apply_transaction(self, account_id: str, transaction_type: TransactionTypes, debit: int, credit: int, description: str = ""):
+        active_billing_period = await BillingPeriodORM.filter(account_id=account_id, end_date=None).first()
         
         transaction = TransactionORM(
             account_id=account_id,
@@ -97,8 +97,8 @@ class ORMAccountRepo(AccountsRepo):
             credit=credit,
             description=description,
         )
-        transaction.save()
-        self._update_account_balance(account_id)
+        await transaction.save()
+        await self._update_account_balance(account_id)
 
         return Transaction(
             id=transaction.id,
@@ -112,22 +112,22 @@ class ORMAccountRepo(AccountsRepo):
             updated_at=transaction.updated_at,
         )
 
-    def _update_account_balance(self, account_id: str):
-        account = AccountORM.get(id=account_id)
-        active_billing_period = BillingPeriodORM.filter(account_id=account_id, end_date=None).first()
-        transactions = TransactionORM.filter(billing_period_id=active_billing_period.id).all()
+    async def _update_account_balance(self, account_id: str):
+        account = await AccountORM.get(id=account_id)
+        active_billing_period = await BillingPeriodORM.filter(account_id=account_id, end_date=None).first()
+        transactions = await TransactionORM.filter(billing_period_id=active_billing_period.id).all()
         balance = 0
         for transaction in transactions:
             balance += transaction.credit - transaction.debit
         account.balance = balance
         account.save()
 
-    def list_account_transactions(self, account_id: str, open_billing_period: bool = True) -> List[Transaction]:
+    async def list_account_transactions(self, account_id: str, open_billing_period: bool = True) -> List[Transaction]:
         if open_billing_period:
-            active_billing_period = BillingPeriodORM.filter(account_id=account_id, end_date=None).first()
-            transactions = TransactionORM.filter(billing_period_id=active_billing_period.id).all()
+            active_billing_period = await BillingPeriodORM.filter(account_id=account_id, end_date=None).first()
+            transactions = await TransactionORM.filter(billing_period_id=active_billing_period.id).all()
         else:
-            transactions = TransactionORM.filter(account_id=account_id).all()
+            transactions = await TransactionORM.filter(account_id=account_id).all()
         return [
             Transaction(
                 id=transaction.id,
@@ -143,8 +143,8 @@ class ORMAccountRepo(AccountsRepo):
             for transaction in transactions
         ]
     
-    def get_open_billing_period(self, account_id: str) -> BillingPeriod:
-        active_billing_period = BillingPeriodORM.filter(account_id=account_id, end_date=None).first()
+    async def get_open_billing_period(self, account_id: str) -> BillingPeriod:
+        active_billing_period = await BillingPeriodORM.filter(account_id=account_id, end_date=None).first()
         return BillingPeriod(
             id=active_billing_period.id,
             account_id=active_billing_period.account_id,
@@ -155,24 +155,25 @@ class ORMAccountRepo(AccountsRepo):
         )
 
     @atomic()
-    def close_billing_period(self, account_id: str) -> int:
-        account = AccountORM.get(id=account_id)    
-        active_billing_period = BillingPeriodORM.filter(account_id=account_id, end_date=None).first()
-        transactions = TransactionORM.filter(billing_period_id=active_billing_period.id).all()
+    async def close_billing_period(self, account_id: str) -> int:
+        account = await AccountORM.get(id=account_id)    
+        active_billing_period = await BillingPeriodORM.filter(account_id=account_id, end_date=None).first()
+        transactions = await TransactionORM.filter(billing_period_id=active_billing_period.id).all()
         balance = 0
         for transaction in transactions:
             balance += transaction.credit - transaction.debit
 
         active_billing_period.end_date = datetime.now()
-        active_billing_period.save()
+        await active_billing_period.save()
 
         new_billing_period = BillingPeriodORM(
             account_id=account_id,
             start_date=datetime.now(),
         )
-        new_billing_period.save()
+        await new_billing_period.save()
 
         account.balance = 0
+        await account.save()
         return balance
 
 @lru_cache()

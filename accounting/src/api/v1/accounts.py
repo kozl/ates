@@ -11,7 +11,7 @@ router = APIRouter()
 async def list_accounts(
     service: AccountingService = Depends(get_service),
 ) -> Result:
-    accounts = service.list_accounts()
+    accounts = await service.list_accounts()
     return Result(result=[Account(user_id=account.username, balance=account.balance) for account in accounts])
 
 @router.get("/my", response_model=Result)
@@ -20,11 +20,11 @@ async def get_my_account(
     service: AccountingService = Depends(get_service),
     ) -> Result:
     try:
-        account = service.get_user_account(x_user)
+        account = await service.get_user_account(x_user)
     except AccountNotFoundException:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account not found")
 
-    transactions = service.list_account_transactions(account.id)
+    transactions = await service.list_account_transactions(account.id)
 
     return Result(
         result=MyAccount(

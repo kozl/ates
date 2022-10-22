@@ -21,44 +21,44 @@ class AccountingService:
         self.tasks = tasks
         self.payment_gateway = payment_gateway
 
-    def list_accounts(self) -> List[Account]:
-        return self.accounts.list_accounts()
+    async def list_accounts(self) -> List[Account]:
+        return await self.accounts.list_accounts()
 
-    def list_account_transactions(self, account_id: str) -> List[Transaction]:
-        return self.accounts.list_account_transactions(account_id)
+    async def list_account_transactions(self, account_id: str) -> List[Transaction]:
+        return await self.accounts.list_account_transactions(account_id)
 
-    def get_user_account(self, username: str) -> Account:
-        return self.accounts.get_user_account(username)
+    async def get_user_account(self, username: str) -> Account:
+        return await self.accounts.get_user_account(username)
 
-    def get_user_transactions(self, username: str) -> List[Transaction]:
-        account = self.accounts.get_user_account(username)
-        return self.accounts.list_account_transactions(account.id)
+    async def get_user_transactions(self, username: str) -> List[Transaction]:
+        account = await self.accounts.get_user_account(username)
+        return await self.accounts.list_account_transactions(account.id)
 
-    def add_user_account(self, username: str) -> Account:
-        return self.accounts.add_user_account(username)
+    async def add_user_account(self, username: str) -> Account:
+        return await self.accounts.add_user_account(username)
 
-    def create_task(self, task_id: str, assignee: str) -> None:
+    async def create_task(self, task_id: str, assignee: str) -> None:
         fee = randrange(10, 20)
         reward = randrange(20, 40)
-        self.tasks.create_task(task_id, assignee, fee, reward)
+        await self.tasks.create_task(task_id, assignee, fee, reward)
         try:
-            account = self.accounts.get_user_account(assignee)
+            account = await self.accounts.get_user_account(assignee)
         except AccountNotFoundException:
-            account = self.accounts.add_user_account(assignee)
+            account = await self.accounts.add_user_account(assignee)
         
-        self.accounts.apply_withdraw_transaction(account.id, TransactionTypes.TASK_ASSIGNED, fee)
+        await self.accounts.apply_withdraw_transaction(account.id, TransactionTypes.TASK_ASSIGNED, fee)
     
-    def assign_task(self, task_id: str, assignee: str) -> None:
-        task = self.tasks.assign_task(task_id, assignee)
-        self.accounts.apply_withdraw_transaction(task.assignee, TransactionTypes.TASK_ASSIGNED, task.fee)
+    async def assign_task(self, task_id: str, assignee: str) -> None:
+        task = await self.tasks.assign_task(task_id, assignee)
+        await self.accounts.apply_withdraw_transaction(task.assignee, TransactionTypes.TASK_ASSIGNED, task.fee)
 
-    def complete_task(self, task_id: str) -> None:
-        task = self.tasks.get_task(task_id)
-        self.accounts.apply_deposit_transaction(task.assignee, TransactionTypes.TASK_COMPLETED, task.reward)
+    async def complete_task(self, task_id: str) -> None:
+        task = await self.tasks.get_task(task_id)
+        await self.accounts.apply_deposit_transaction(task.assignee, TransactionTypes.TASK_COMPLETED, task.reward)
 
-    def process_payment(self, username: str) -> None:
-        account = self.accounts.get_user_account(username)
-        amount_to_pay = self.accounts.close_billing_period(account.id)
+    async def process_payment(self, username: str) -> None:
+        account = await self.accounts.get_user_account(username)
+        amount_to_pay = await self.accounts.close_billing_period(account.id)
         self.payment_gateway.pay(username, amount_to_pay)
   
 
