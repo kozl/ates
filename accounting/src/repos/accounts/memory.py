@@ -81,7 +81,7 @@ class InMemoryAccountRepo(AccountsRepo):
         self._update_account_balance(account_id, self._account_balance(account_id))
         return transaction
 
-    def apply_debit_transaction(self, account_id: str, transaction_type: TransactionTypes, amount: int, description: str = "") -> Transaction:
+    def apply_deposit_transaction(self, account_id: str, transaction_type: TransactionTypes, amount: int, description: str = "") -> Transaction:
         billing_period = self.get_open_billing_period(account_id)
         transaction = Transaction(
             id=str(len(self.storage["transactions"]) + 1),

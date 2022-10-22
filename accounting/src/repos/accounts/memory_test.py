@@ -28,7 +28,7 @@ def test_get_user_account(inmemory_account_repo):
     assert account.balance == -100
 
 def test_apply_withdraw_or_debit_transactions(inmemory_account_repo):
-    inmemory_account_repo.apply_debit_transaction(account_id="1", transaction_type=TransactionTypes.TASK_COMPLETED, amount=100)
+    inmemory_account_repo.apply_deposit_transaction(account_id="1", transaction_type=TransactionTypes.TASK_COMPLETED, amount=100)
     account = inmemory_account_repo.get_user_account("user1")
     assert account.balance == 0
 
@@ -42,6 +42,6 @@ def test_close_billing_period(inmemory_account_repo):
     account = inmemory_account_repo.get_user_account("user1")
     assert account.balance == 0
 
-    inmemory_account_repo.apply_debit_transaction(account_id="1", transaction_type=TransactionTypes.TASK_COMPLETED, amount=100)
+    inmemory_account_repo.apply_deposit_transaction(account_id="1", transaction_type=TransactionTypes.TASK_COMPLETED, amount=100)
     account = inmemory_account_repo.get_user_account("user1")
     assert account.balance == 100

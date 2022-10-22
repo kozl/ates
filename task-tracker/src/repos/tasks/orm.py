@@ -11,7 +11,7 @@ from repos.tasks.exceptions import TaskNotFoundException
 
 class TaskORM(models.Model):
     id = fields.IntField(pk=True)
-    description = fields.CharField(max_length=100)
+    title = fields.CharField(max_length=100)
     description = fields.CharField(max_length=1000)
     status = fields.CharEnumField(TaskStatus)
     assignee = fields.CharField(max_length=50)

@@ -1,15 +1,16 @@
 from fastapi.testclient import TestClient
 
 from app import app
-from repos.tasks.memory import get_task_repo
-from repos.accounts.memory import get_account_repo
+from repos.tasks.orm import get_task_repo
+from repos.accounts.orm import get_account_repo
 from tests.functional.mocks.tasks_repo import get_task_repo as get_mock_task_repo
 from tests.functional.mocks.accounts_repo import get_account_repo as get_mock_account_repo
 
-client = TestClient(app)
 
 app.dependency_overrides[get_task_repo] = get_mock_task_repo
 app.dependency_overrides[get_account_repo] = get_mock_account_repo
+
+client = TestClient(app)
 
 def test_list_accounts():
     response = client.get("/v1/accounts", headers={"X-User": "ivan", "X-Role": "developer"})

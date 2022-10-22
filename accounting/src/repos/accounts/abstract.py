@@ -18,11 +18,11 @@ class AccountsRepo(ABC):
         pass
 
     @abstractmethod
-    def apply_withdraw_transaction(self, account_id: str, transaction_type: TransactionTypes, amount: int) -> Transaction:
+    def apply_withdraw_transaction(self, account_id: str, transaction_type: TransactionTypes, amount: int, description: str = "") -> Transaction:
         pass
 
     @abstractmethod
-    def apply_debit_transaction(self, account_id: str, transaction_type: TransactionTypes, amount: int) -> Transaction:
+    def apply_deposit_transaction(self, account_id: str, transaction_type: TransactionTypes, amount: int, description: str = "") -> Transaction:
         pass
 
     @abstractmethod

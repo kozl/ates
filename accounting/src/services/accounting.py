@@ -5,10 +5,10 @@ from typing import List
 from fastapi import Depends
 
 from repos.accounts.abstract import AccountsRepo
-from repos.accounts.memory import get_account_repo
+from repos.accounts.orm import get_account_repo
 from repos.accounts.models import Account, Transaction, BillingPeriod, TransactionTypes
 from repos.accounts.exceptions import AccountNotFoundException, OpenBillingPeriodNotFoundException, UnexpectedException
-from repos.tasks.memory import get_task_repo
+from repos.tasks.orm import get_task_repo
 from repos.tasks.abstract import TaskRepo
 from services.payment import DummyPaymentGateway, get_payment_gateway
 

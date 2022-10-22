@@ -36,7 +36,7 @@ async def exception_handler(request: Request, exc: HTTPException):
 register_tortoise(
     app,
     db_url=DB_URL,
-    modules={"models": ["repos.tasks.orm", "repos.users.orm"]},
+    modules={"models": ["repos.tasks.orm", "repos.accounts.orm"]},
     generate_schemas=True,
     add_exception_handlers=True,
 )
