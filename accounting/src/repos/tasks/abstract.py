@@ -18,9 +18,13 @@ class TaskRepo(ABC):
         pass
 
     @abstractmethod
-    def create_task(self, assignee: str, title: str, description: str) -> Task:
+    def create_task(self, task_id: str, assignee: str, fee: int, reward: int) -> Task:
         pass
 
     @abstractmethod
-    def update_task(self, task_id: str, task: Task) -> Task:
+    def assign_task(self, task_id: str, assignee: str) -> int:
+        pass
+
+    @abstractmethod
+    def close_task(self, task_id: str) -> Task:
         pass

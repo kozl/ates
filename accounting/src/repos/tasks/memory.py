@@ -28,15 +28,12 @@ class InMemoryTaskRepo(TaskRepo):
         async def list_tasks(self, task_filter: Optional[TaskFilter] = None) -> List[Task]:
             return list(filter(task_filter, self.tasks))
 
-        async def create_task(self, assignee: str, title: str, description: str) -> Task:
-            task_id = f"POPUG-{self.latest_task_id}"
+        async def create_task(self, task_id: str, assignee: str, fee: int, reward: int) -> Task:
             task = Task(
                 id=task_id,
-                title=title,
                 assignee=assignee, 
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
-                description=description,
                 status=TaskStatus.IN_PROGRESS,
                 )
             idx = len(self.tasks)
@@ -46,16 +43,24 @@ class InMemoryTaskRepo(TaskRepo):
 
             return task
     
-        async def update_task(self, task_id: str, upd: Task) -> Task:
+        async def assign_task(self, task_id: str, assignee: str) -> int:
             try:
                 idx = self.tasks_dict[task_id]
             except KeyError:
                 raise TaskNotFoundException(f"Task {task_id} not found")
             
-            self.tasks[idx].assignee = upd.assignee
-            self.tasks[idx].title = upd.title
-            self.tasks[idx].description = upd.description
-            self.tasks[idx].status = upd.status
+            self.tasks[idx].assignee = assignee
+            self.tasks[idx].updated_at = datetime.now()
+
+            return self.tasks[idx]
+
+        async def close_task(self, task_id: str) -> Task:
+            try:
+                idx = self.tasks_dict[task_id]
+            except KeyError:
+                raise TaskNotFoundException(f"Task {task_id} not found")
+            
+            self.tasks[idx].status = TaskStatus.CLOSED
             self.tasks[idx].updated_at = datetime.now()
 
             return self.tasks[idx]

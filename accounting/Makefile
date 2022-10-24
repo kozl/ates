@@ -3,11 +3,11 @@ TAG=latest
 
 .PHONY: build
 build:
-	@echo "[+] Building Task Tracker"
+	@echo "[+] Building Accounting"
 	@echo
 	@docker build -t $(IMAGE):$(TAG) .
 	@echo
-	@echo "[+] Task Tracker built successfully"
+	@echo "[+] Accounting built successfully"
 
 .PHONY: run
 run:

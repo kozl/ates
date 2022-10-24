@@ -1,6 +1,6 @@
-SERVICE_NAME = "task-tracker"
+SERVICE_NAME = "accounting"
 
-DB_URL = "sqlite://data/task-tracker.sqlite3"
+DB_URL = "sqlite://data/accounting.sqlite3"
 KAFKA_BROKER_URL = "kafka://broker"
 
 USER_HEADER = "X-User"

@@ -56,3 +56,10 @@ func sendJSON(w http.ResponseWriter, data interface{}) {
 		panic(err)
 	}
 }
+
+func copyHeader(src, dst http.Header) http.Header {
+	for k, v := range src {
+		dst[k] = v
+	}
+	return dst
+}

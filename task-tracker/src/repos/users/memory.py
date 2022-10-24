@@ -20,7 +20,7 @@ class InMemoryUserRepo(UserRepo):
             except KeyError:
                 raise UserNotFoundException(f"User {login} not found")
 
-        def list_users_by_role(self, role: UserRole) -> List[User]:
+        async def list_users_by_role(self, role: UserRole) -> List[User]:
             return [user for user in self.users if user.role == role]
 
         def create_user(self, login: str, role: UserRole) -> User:
