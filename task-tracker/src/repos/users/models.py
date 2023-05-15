@@ -11,3 +11,10 @@ class UserRole(Enum):
 class User:
     login: str
     role: UserRole
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "User":
+        return cls(
+            login=data["login"],
+            role=UserRole(data["role"]),
+        )

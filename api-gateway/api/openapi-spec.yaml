@@ -546,11 +546,14 @@ components:
           type: string
         assignee:
           type: string
+        description:
+          type: string
         status:
           type: string
       required:
         - id
         - assignee
+        - description
         - status
 
     Task:
@@ -566,12 +569,15 @@ components:
           format: date-time
         assignee:
           type: string
+        status:
+          type: string
         description:
           type: string
       required:
         - id
         - createdAt
         - updatedAt
+        - status
         - assignee
         - description
 
@@ -580,28 +586,31 @@ components:
       properties:
         balance:
           type: integer
-        auditLog:
+        transactions:
           type: array
           items:
-            $ref: "#/components/schemas/AuditLogEntry"
+            $ref: "#/components/schemas/Transaction"
 
-    AuditLogEntry:
+    Transaction:
       type: object
       properties:
         taskID:
           type: string
         action:
           type: string
-        dateTime:
+        timestamp:
           type: string
           format: date-time
-        balanceChange:
+        debit:
+          type: integer
+        credit:
           type: integer
       required:
         - taskID
         - action
         - dateTime
-        - balanceChange
+        - debit
+        - credit
 
     UserAccount:
       type: object

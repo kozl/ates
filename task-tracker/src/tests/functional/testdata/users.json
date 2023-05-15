@@ -1,0 +1,18 @@
+[
+    {
+        "login": "accountant",
+        "role": "accountant"
+    },
+    {
+        "login": "developer1",
+        "role": "developer"
+    },
+    {
+        "login": "developer2",
+        "role": "developer"
+    },
+    {
+        "login": "manager",
+        "role": "manager"
+    }
+]

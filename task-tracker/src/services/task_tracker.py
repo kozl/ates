@@ -42,12 +42,12 @@ class TaskTrackerService:
     async def list_tasks(self, assignee: str) -> List[Task]:
         return await self.tasks.list_tasks(lambda task: task.assignee == assignee and task.status == TaskStatus.IN_PROGRESS)
 
-    async def create_task(self, description: str) -> Task:
+    async def create_task(self, title: str, description: str) -> Task:
         users = await self.users.list_users_by_role(UserRole.DEVELOPER)
         if len(users) == 0:
             raise NoUsersFoundException("No developers found")
         assignee = random.choice(users).login
-        return await self.tasks.create_task(assignee, description)
+        return await self.tasks.create_task(assignee, title, description)
 
     async def close_task(self, task_id: str, user: str) -> Task:
         try:
